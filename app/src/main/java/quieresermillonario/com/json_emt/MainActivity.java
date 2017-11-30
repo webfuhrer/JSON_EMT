@@ -29,8 +29,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /*User: WEB.SERV.ataraxa@hotmail.com
-Key: 83D88CD0-8A9B-4CE6-B976-B922B61FAE6D        */
+
 
 
         String url = "https://openbus.emtmadrid.es:9443/emt-proxy-server/last/geo/GetArriveStop.php";
@@ -59,8 +58,8 @@ Key: 83D88CD0-8A9B-4CE6-B976-B922B61FAE6D        */
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map mapa = new HashMap();
-                mapa.put("idClient", "WEB.SERV.ataraxa@hotmail.com");
-                mapa.put("passKey", "83D88CD0-8A9B-4CE6-B976-B922B61FAE6D");
+                mapa.put("idClient", "tu_user");
+                mapa.put("passKey", "tu_apikey");
                 mapa.put("idStop", "3811");
                 return mapa;
             }
