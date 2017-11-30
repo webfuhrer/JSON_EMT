@@ -3,6 +3,7 @@ package quieresermillonario.com.json_emt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.WebView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -20,16 +21,18 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-
+    WebView web_view;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+         web_view=(WebView) findViewById(R.id.web_view);
 
 
         String url = "https://openbus.emtmadrid.es:9443/emt-proxy-server/last/geo/GetArriveStop.php";
@@ -39,8 +42,9 @@ public class MainActivity extends AppCompatActivity {
         Response.Listener oyente = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.v("Respuesta", response);
-                tratarJSON(response);
+                List lista_lineas=tratarJSON(response);
+                String html_tabla=CreaHTML.crearTabla(lista_lineas);
+                web_view.loadData(html_tabla, "text/html", "UTF-8");
             }
         };
         //Creo el oyente para esperar la respuesta de la petición hecha (en caso de error)
@@ -58,8 +62,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map mapa = new HashMap();
-                mapa.put("idClient", "tu_user");
-                mapa.put("passKey", "tu_apikey");
+                //Las variables de la clase Claves pueden obtenerse en Opendata EMT
+                mapa.put("idClient", Claves.usr);
+                mapa.put("passKey", Claves.pass);
                 mapa.put("idStop", "3811");
                 return mapa;
             }
@@ -68,8 +73,11 @@ public class MainActivity extends AppCompatActivity {
 
         queue.add(sr);
     }
-    protected void tratarJSON(String json)
+    /*****************************************************************************/
+
+    protected List tratarJSON(String json)
     {
+        List<ObjetoLinea> lista_lineas=new ArrayList();
         try {
             JSONObject json_objeto=new JSONObject(json);
 
@@ -77,13 +85,16 @@ public class MainActivity extends AppCompatActivity {
             for (int i=0; i<lista_arrives.length(); i++) {
                 JSONObject objeto_parada = lista_arrives.getJSONObject(i);
                 //JSONObject objeto_linea=objeto_parada.getJSONObject("lineId");
-                Log.v("Paradas: ", objeto_parada.getString("lineId"));
-
+                String id=objeto_parada.getString("lineId");
+                int tiempo_llegada= objeto_parada.getInt("busTimeLeft");
+                String destino= objeto_parada.getString("destination");
+                ObjetoLinea linea=new ObjetoLinea(id, destino, tiempo_llegada);
+                lista_lineas.add(linea);
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
+        return lista_lineas;
     }
 }
