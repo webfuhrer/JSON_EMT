@@ -3,7 +3,10 @@ package quieresermillonario.com.json_emt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -28,11 +31,35 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     WebView web_view;
+    Button boton;
+    EditText et_parada;
+    View.OnClickListener oyente=new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String id_parada=et_parada.getText().toString();
+            cargarJSON(id_parada);
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-         web_view=(WebView) findViewById(R.id.web_view);
+        cargarVistas();
+
+
+    }
+
+    private void cargarVistas() {
+        web_view=(WebView) findViewById(R.id.web_view);
+        et_parada=(EditText)findViewById(R.id.et_parada);
+        boton=(Button)findViewById(R.id.btn_buscar);
+        boton.setOnClickListener(oyente);
+    }
+
+    /*****************************************************************************/
+
+    protected void cargarJSON(final String id_parada)
+    {
 
 
         String url = "https://openbus.emtmadrid.es:9443/emt-proxy-server/last/geo/GetArriveStop.php";
@@ -65,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 //Las variables de la clase Claves pueden obtenerse en Opendata EMT
                 mapa.put("idClient", Claves.usr);
                 mapa.put("passKey", Claves.pass);
-                mapa.put("idStop", "3811");
+                mapa.put("idStop", id_parada);
                 return mapa;
             }
         };
@@ -73,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
 
         queue.add(sr);
     }
-    /*****************************************************************************/
 
+    /*****************************************************************************/
     protected List tratarJSON(String json)
     {
         List<ObjetoLinea> lista_lineas=new ArrayList();
